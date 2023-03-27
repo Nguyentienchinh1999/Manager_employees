@@ -11,6 +11,7 @@ public class Employees {
     private int salary;
     private int department_id;
     private int position_id;
+    private String position_name;
 
     public Employees() {
     }
@@ -65,6 +66,14 @@ public class Employees {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPosition_name() {
+        return position_name;
+    }
+
+    public void setPosition_name(String position_name) {
+        this.position_name = position_name;
     }
 
     public String getPhone_number() {

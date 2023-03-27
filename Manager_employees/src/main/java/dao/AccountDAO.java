@@ -1,6 +1,7 @@
 package dao;
 
 import connection.MyConnection;
+import model.Account;
 
 import java.sql.*;
 
@@ -20,5 +21,23 @@ public class AccountDAO {
         }
 
         return false;
+    }
+    public void registerAcoount(Account account){
+        final String sql =
+                String.format("INSERT INTO `account` VALUES(NULL,'%s','%s')",
+                       account.getUser_name(), account.getPass_word());
+        try{
+            Connection conn = MyConnection.getConnection();
+            Statement stmt = conn.createStatement();
+            long rs = stmt.executeUpdate(sql);
+
+            if(rs == 0){
+                System.out.println("Thêm thất bại");
+            }
+            stmt.close();
+            conn.close();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }

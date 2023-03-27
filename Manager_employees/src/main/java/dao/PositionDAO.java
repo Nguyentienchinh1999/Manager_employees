@@ -62,7 +62,4 @@ public class PositionDAO {
         return positionsList;
     }
 
-
-
-
 }

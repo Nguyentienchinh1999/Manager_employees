@@ -41,12 +41,11 @@ public class DepartmentsDAO {
 
     public List<Departments> getInforManager(){
         List<Departments> departmentsList = new ArrayList<>();
-        final String sql = "SELECT d.department_id, name as 'department_name',\n" +
-                "       (SELECT e.name\n" +
-                "        FROM employees e\n" +
-                "        JOIN positions p ON e.position_id = p.position_id\n" +
-                "        WHERE e.department_id = d.department_id AND p.name = 'Trưởng Phòng') as 'manager'\n" +
-                "FROM departments d";
+        final String sql = "SELECT d.department_id, d.name, e.name\n" +
+                " FROM departments d\n" +
+                " LEFT JOIN employees e\n" +
+                " ON d.department_id = e.department_id\n" +
+                " AND e.position_id = (SELECT position_id FROM positions p WHERE p.name = 'Trưởng phòng')";
         try {
             Connection conn = MyConnection.getConnection();
             Statement stmt = conn.createStatement();
@@ -56,8 +55,8 @@ public class DepartmentsDAO {
             while (rs.next()) {
                 Departments departments = new Departments();
                 departments.setDepartment_id(rs.getInt("department_id"));
-                departments.setName(rs.getString("department_name"));
-                departments.setManager(rs.getString("manager"));
+                departments.setName(rs.getString("d.name"));
+                departments.setManager(rs.getString("e.name"));
                 departmentsList.add(departments);
             }
             rs.close();
@@ -68,7 +67,34 @@ public class DepartmentsDAO {
         }
         return departmentsList;
     }
+    public List<Departments> getInforManagerDifferent(int deparmentId){
+        List<Departments> departmentsList = new ArrayList<>();
+        final String sql = "SELECT d.department_id, d.name, e.name\n" +
+                " FROM departments d\n" +
+                " LEFT JOIN employees e\n" +
+                " ON d.department_id = e.department_id\n" +
+                " AND e.position_id = (SELECT position_id FROM positions p WHERE p.name = 'Trưởng phòng') WHERE d.department_id != '" + deparmentId + "'";
+        try {
+            Connection conn = MyConnection.getConnection();
+            Statement stmt = conn.createStatement();
 
+            ResultSet rs = stmt.executeQuery(sql);
+
+            while (rs.next()) {
+                Departments departments = new Departments();
+                departments.setDepartment_id(rs.getInt("department_id"));
+                departments.setName(rs.getString("d.name"));
+                departments.setManager(rs.getString("e.name"));
+                departmentsList.add(departments);
+            }
+            rs.close();
+            stmt.close();
+            conn.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return departmentsList;
+    }
     public Departments getById(int id){
         Departments departments = null;
         final String sql = "SELECT * FROM `departments` WHERE  `department_id` =" + id;
@@ -88,6 +114,56 @@ public class DepartmentsDAO {
             e.printStackTrace();
         }
         return departments;
+    }
+
+    public void insert(Departments departments){
+        String sql = String.format("INSERT INTO `departments` VALUES(NULL, '%s')", departments.getName());
+        try{
+            Connection conn = MyConnection.getConnection();
+            Statement stmt = conn.createStatement();
+            long rs = stmt.executeUpdate(sql);
+
+            if(rs == 0){
+                System.out.println("Thêm thất bại");
+            }
+            stmt.close();
+            conn.close();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    public void update(Departments departments, int id){
+        String sql = String.format("UPDATE `departments` SET `name` = '%s' WHERE `department_id` = %d", departments.getName(), id);
+        try {
+            Connection conn = MyConnection.getConnection();
+            Statement stmt = conn.createStatement();
+            long rs = stmt.executeUpdate(sql);
+
+            if (rs == 0) {
+                System.out.println("Cập nhật thất bại");
+            }
+            stmt.close();
+            conn.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void delete(int id){
+        Departments departments = getById(id);
+        final String sql = "DELETE FROM `departments` WHERE  `department_id` = '" + id + "'";
+        try {
+            Connection conn = MyConnection.getConnection();
+            Statement stmt = conn.createStatement();
+            long rs = stmt.executeUpdate(sql);
+
+            if (rs == 0) {
+                System.out.println("Xoá thất bại");
+            }
+            stmt.close();
+            conn.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }
