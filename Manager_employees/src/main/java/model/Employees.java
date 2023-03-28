@@ -128,6 +128,8 @@ public class Employees {
                 ", address='" + address + '\'' +
                 ", salary=" + salary +
                 ", department_id=" + department_id +
+                ", position_id=" + position_id +
+                ", position_name='" + position_name + '\'' +
                 '}';
     }
 }

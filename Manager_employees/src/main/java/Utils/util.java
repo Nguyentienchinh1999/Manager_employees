@@ -14,6 +14,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.SimpleFormatter;
 
+
+
 public class util {
     public static List<Employees> employeesList = new ArrayList<>();
     public static List<Departments> departmentsList = new ArrayList<>();
@@ -28,7 +30,7 @@ public class util {
     public void registerAccount()   {
         System.out.print("\t Nhập vào tên tài khoản: ");
         String username = in.nextLine();
-        whileInputNotNull(username);
+        checkInputNotNull(username);
         System.out.print("\t Nhập vào mật khẩu: ");
         String password = in.nextLine();
         System.out.print("\t Nhập lại mật khâủ: ");
@@ -73,14 +75,14 @@ public class util {
         }
     }
 
-    public void whileInputNotNull(String input) {
+    public void checkInputNotNull(String input) {
         while (input == null || input.trim().isEmpty()) {
             System.out.print("\t Không được để trống trường này, mời nhập lại: ");
             input = in.nextLine();
         }
     }
 
-    public int  whileInputGender() {
+    public int  checkInputGender() {
         int gender = -1;
         boolean flag = false;
         while (!flag){
@@ -125,13 +127,29 @@ public class util {
         }
         return false;
     }
+    public boolean containsValueDepartment(List<Departments> departmentsList, String input){
+        for (int i = 0; i < departmentsList.size(); i++) {
+            if (departmentsList.get(i).getName().equalsIgnoreCase(input)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-    public void whileEmail(String email){
+    public void checkEmail(String email){
         employeesList  = employeesDAO.getAll();
         while (containsValueEmail(employeesList, email)){
             System.out.println("\t Đã có Email này, vui lòng nhập lại: ");
             email = in.nextLine();
         }
+    }
+    public void checkDepartmentName(String departmentName){
+        departmentsList   = departmentsDAO.getAll();
+        while (containsValueDepartment(departmentsList, departmentName)){
+            System.out.println("\t Đã có phòng ban này, vui lòng nhập lại: ");
+            departmentName = in.nextLine();
+        }
+
     }
 
     public String checkInputPhone(){
@@ -177,16 +195,18 @@ public class util {
     public void  selectDepartmentsAndPosition(Employees employees){
         departmentsList  = departmentsDAO.getInforManager();
         departmentsList.stream().forEach(departments -> {
-            System.out.println("\t department_id: " + departments.getDepartment_id() + " department_name: " + departments.getName() + " manager: " + departments.getManager());
+            System.out.println("\t department_id: " + departments.getDepartment_id() + " --department_name: " + departments.getName() + " --manager: " + departments.getManager());
         });
-        System.out.print("\t Chọn bộ phận");
-        int department_id  = -1;
+        System.out.print("\t Chọn bộ phận: ");
+        int finalDeparmentId = -1;
+        Optional<Departments> result = null;
         boolean flag = false;
         while (!flag){
             try{
-                 department_id = Integer.parseInt(in.nextLine());
-                 Departments departments = departmentsDAO.getById(department_id);
-                 if(departments != null){
+                int  department_id = Integer.parseInt(in.nextLine());
+                result = departmentsList.stream().filter(departments1 -> departments1.getDepartment_id() == department_id).findAny();
+                finalDeparmentId = department_id;
+                 if(result != null){
                      flag = true;
                  }else{
                      System.out.print("\t không có bộ phận này, mời nhập lại: ");
@@ -196,8 +216,8 @@ public class util {
                 continue;
             }
         }
-        employees.setDepartment_id(department_id);
-        if(departmentsList.get(department_id - 1).getManager() == null) {
+        employees.setDepartment_id(finalDeparmentId);
+        if(result.get().getManager() == null) {
             System.out.println("Bộ phận này chưa có trưởng phòng, bạn có thể thêm là trưởng phòng hoặc các chức vụ khác:");
             positionsList = positionDAO.getAll();
             positionsList.stream().forEach(positions -> {
@@ -225,20 +245,25 @@ public class util {
             employees.setPosition_id(positionId);
         }
     }
+
+
     public void selectDepartmentsDifferent(Employees employees, int employeeId){
         Employees employees1 = employeesDAO.getById(employeeId);
         departmentsList  = departmentsDAO.getInforManager();
         departmentsList.stream().forEach(departments -> {
-            System.out.println("\t department_id: " + departments.getDepartment_id() + " department_name: " + departments.getName() + " manager: " + departments.getManager());
+            System.out.println("\t department_id: " + departments.getDepartment_id() + " --department_name: " + departments.getName() + " --manager: " + departments.getManager());
         });
-        System.out.print("\t Chọn bộ phận");
-        int department_id  = -1;
+        System.out.print("\t Chọn bộ phận: ");
+       int finalDeparmentId = -1;
+        Optional<Departments> result = null;
         boolean flag = false;
         while (!flag){
             try{
-                department_id = Integer.parseInt(in.nextLine());
-                Departments departments = departmentsDAO.getById(department_id);
-                if(departments != null && departments.getDepartment_id() != employees1.getDepartment_id()){
+               int department_id = Integer.parseInt(in.nextLine());
+                 result = departmentsList.stream().filter(departments1 -> departments1.getDepartment_id() == department_id).findAny();
+                finalDeparmentId = department_id;
+                System.out.println(result);
+                if(result != null && finalDeparmentId != employees1.getDepartment_id()){
                     flag = true;
                 }
                 else{
@@ -249,9 +274,9 @@ public class util {
                 continue;
             }
         }
-        employees.setDepartment_id(department_id);
 
-        if(departmentsList.get(department_id - 1).getManager() == null) {
+        employees.setDepartment_id(finalDeparmentId);
+        if(result.get().getManager() == null) {
             System.out.println("Bộ phận này chưa có trưởng phòng, bạn có thể thêm là trưởng phòng hoặc các chức vụ khác:");
             positionsList = positionDAO.getAll();
             positionsList.stream().forEach(positions -> {
@@ -296,6 +321,8 @@ public class util {
                System.out.println("\t Nhập sai định dạng, mời nhập lại: ");
            }
         }
+        Employees employees = employeesDAO.getById(employee_id);
+        System.out.println(employees);
         return employee_id;
     }
     public int checkDepartmentByID(){
@@ -315,10 +342,13 @@ public class util {
                 continue;
             }
         }
+        Departments departments = departmentsDAO.getById(department_id);
+        System.out.println(departments);
         return department_id;
     }
 
-    public int checkDepartmentIdInEmployyes(Employees employees){
+    public int checkHasDepartmentId(Employees employees){
+
         int employee_id = -1;
         boolean flag = false;
         while (!flag) {
@@ -326,7 +356,7 @@ public class util {
                 employee_id = checkEmployeesById();
                 Employees employeesById = employeesDAO.getById(employee_id);
                 if(employeesById.getDepartment_id() == 0){
-                    System.out.print("Nhân viên này chưa có phòng ban, bạn có thể thêm nhân viên vào phòng ban bất kỳ: ");
+                    System.out.println("\t Nhân viên này chưa có phòng ban, bạn có thể thêm nhân viên vào phòng ban bất kỳ: ");
                     selectDepartmentsAndPosition(employees);
                     flag = true;
                 }else {
@@ -463,19 +493,23 @@ public class util {
         if (luong <= 5000000 ){
             TTNCN = TNTT * 0.05;
         }else if (luong <= 10000000){
-            TTNCN = (TNTT * 0.1) - 250000;
+            TTNCN = (TNTT * 0.1) - 0.25;
         }else if (luong <= 18000000){
-            TTNCN = (TNTT * 0.15) - 750000;
+            TTNCN = (TNTT * 0.15) - 0.75;
         }else if (luong <= 32000000){
-            TTNCN = (TNTT * 0.2) - 1650000;
+            TTNCN = (TNTT * 0.2) - 1.65;
         }else if (luong <= 52000000){
-            TTNCN = (TNTT * 0.25) - 3250000;
+            TTNCN = (TNTT * 0.25) - 3.25;
         }else if (luong <= 80000000){
-            TTNCN = (TNTT * 0.3) - 5850000;
+            TTNCN = (TNTT * 0.3) - 5.85;
         }else {
-            TTNCN = (TNTT * 0.35) - 9850000;
+            TTNCN = (TNTT * 0.35) - 9.85;
         }
-        System.out.println("\t-Thuế thu nhập cá nhân phải nộp = "+formatter.format(TTNCN)+" VNĐ");
+        if (luong > 0){
+            System.out.println("\t-Thuế thu nhập cá nhân phải nộp = "+formatter.format(TTNCN)+" VNĐ");
+        }else {
+            System.out.println("\t-Thuế thu nhập cá nhân phải nộp = 0 VNĐ");
+        }
     }
 }
 

@@ -29,7 +29,7 @@ public class Main {
         System.out.println("1. Danh sách nhân viên");
         System.out.println("2. Danh sách phòng ban: ");
         System.out.println("3. Nhập 1 nhân viên mới");
-        System.out.println("4.  Cập nhật thông tin nhân viên: ");
+        System.out.println("4. Cập nhật thông tin nhân viên: ");
         System.out.println("5. Xóa một nhân viên theo mã: ");
         System.out.println("6. Tìm một nhân viên theo họ tên:");
         System.out.println("7. Thêm nhân viên vào phòng ban");
@@ -39,7 +39,7 @@ public class Main {
         System.out.println("11. Sửa phòng ban: ");
         System.out.println("12. Xóa phong ban: ");
         System.out.println("13. Tính thuế thu nhập cá nhân cho 1 nhân viên bất kỳ: ");
-        System.out.println("14. Xem nhân viên có lương cao nhất: ");
+        System.out.println("14. Sắp xếp nhân viên theo lương: ");
         System.out.println("15. Thoát;");
     }
     private static void runMainMenu(){
@@ -88,19 +88,19 @@ public class Main {
                     changeDepartment();
                     break;
                 case 10:
-                    personalIncomeTax();
-                    break;
-                case 11:
                     insertDepartment();
                     break;
-                case 12:
+                case 11:
                     updateDepartment();
                     break;
-                case 13:
+                case 12:
                     deleteDepartment();
                     break;
+                case 13:
+                   personalIncomeTax();
+                    break;
                 case 14:
-                    showSalaryMax();
+                    sortSalary();
                 case 15:
                     System.out.println("Đã Thoát");
                     break;
@@ -112,21 +112,25 @@ public class Main {
     private static void startMain(){
         System.out.println("\t 1. Đăng ký tài khoản: ");
         System.out.println("\t 2. Đăng nhập:");
+        System.out.println("\t 3. Thoát");
         int option = -1;
         boolean flag = false;
         while (!flag){
             try{
                 option = Integer.parseInt(in.nextLine());
-                if(option < 1 || option > 2){
+                if(option < 1 || option > 3){
                     System.out.print("\t Nhập sai cấu trúc, mời nhập lại: ");
                 }else {
                     switch (option){
                         case 1: util.registerAccount();
-                        runMainMenu();
+                        startMain();
+//                        runMainMenu();
+                        flag = true;
                             break;
                         case 2: runMainMenu();
-                            flag = true;
+                        flag = true;
                         break;
+                        case 3: System.exit(1);
                     }
                 }
             }catch (Exception e){
@@ -137,10 +141,17 @@ public class Main {
     }
     private static void showEmployees() {
         employeesList = employeesDAO.getAll();
-        employeesList.stream().forEach(employees -> {
-            System.out.println("ID: " + employees.getEmployee_id() + ", Name: " + employees.getName() + ", Salary: " + employees.getSalary() +
-                    ", Gender: " + employees.getGender() + ", Department_id: " + employees.getDepartment_id() + ", Position_id: " + employees.getPosition_id());
-        });
+        String leftAlignFormat = "| %-12d | %-20s | %-11s  | %-12s  | %-18s  |  %-13s | %-24s | %-10d | %-8d |  %-8d |%n";
+        System.out.format("+--------------+----------------------+--------------+---------------+---------------------+----------------+--------------------------+------------+----------+-----------+%n");
+        System.out.format("| Mã nhân viên |     Tên nhân viên    |  Giới tính   |   Ngày sinh   |       Địa chỉ       |  Số điện thoại |        Email             |    Lương   | Mã Phòng | Mã Chức Vụ|%n");
+        System.out.format("+--------------+----------------------+--------------+---------------+---------------------+----------------+--------------------------+------------+----------+-----------+%n");
+        for (int i = 0; i < employeesList.size(); i++) {
+            System.out.format(leftAlignFormat, employeesList.get(i).getEmployee_id(),employeesList.get(i).getName(),
+                    employeesList.get(i).getGender(), employeesList.get(i).getDate(),employeesList.get(i).getAddress(),
+                    employeesList.get(i).getPhone_number(),employeesList.get(i).getEmail(),employeesList.get(i).getSalary(),
+                    employeesList.get(i).getDepartment_id(), employeesList.get(i).getPosition_id());
+        }
+        System.out.format("+--------------+----------------------+--------------+---------------+---------------------+----------------+--------------------------+------------+----------+-----------+%n");
 
     }
 
@@ -156,6 +167,7 @@ public class Main {
         System.out.format("+-----+----------------------+%n");
     }
 
+
     private static void insertEmployees() {
         Employees employees = new Employees();
         System.out.println("THÊM 1 NHÂN VIÊN: ");
@@ -163,12 +175,12 @@ public class Main {
 //      Nhập Tên NV:
         System.out.print("\t Nhập tên NV: ");
         String name = in.nextLine();
-        util.whileInputNotNull(name);
+        util.checkInputNotNull(name);
         employees.setName(name);
 
 //        Nhập Giới tính
         System.out.print("\t Nhập giới tính: ");
-        int gender = util.whileInputGender();
+        int gender = util.checkInputGender();
         employees.setGender(gender);
 
 
@@ -181,8 +193,8 @@ public class Main {
         System.out.print("\t nhập email: ");
         String email;
         email = in.nextLine();
-        util.whileInputNotNull(email);
-        util.whileEmail(email);
+        util.checkInputNotNull(email);
+        util.checkEmail(email);
         employees.setEmail(email);
 
 //        Nhập số đt
@@ -220,12 +232,12 @@ public class Main {
 //        Nhập Tên NV:
         System.out.print("\t Nhập tên NV: ");
         String name = in.nextLine();
-        util.whileInputNotNull(name);
+        util.checkInputNotNull(name);
         employees.setName(name);
 
 //        Nhập Giới tính
         System.out.print("\t Nhập giới tính: ");
-        int gender = util.whileInputGender();
+        int gender = util.checkInputGender();
         employees.setGender(gender);
 
 
@@ -238,8 +250,8 @@ public class Main {
         System.out.print("\t nhập email: ");
         String email;
         email = in.nextLine();
-        util.whileInputNotNull(email);
-        util.whileEmail(email);
+        util.checkInputNotNull(email);
+        util.checkEmail(email);
         employees.setEmail(email);
 
 //        Nhập số đt
@@ -279,14 +291,26 @@ public class Main {
     }
     private static void insertEmployeeToDepartment() {
         Employees employees = new Employees();
+        employeesList = employeesDAO.getAll();
+        employeesList.stream().filter(employees1 -> {
+            return employees1.getDepartment_id() == 0;
+        }).forEach(employees1 -> {
+                    System.out.println("ID nhan vien: " + employees1.getEmployee_id() + "Tên: " +employees1.getName() +", Ma Phong ban: " + employees1.getDepartment_id());
+        });
         System.out.print("\t Nhập ID nhân viên cần thêm vào phòng ban: ");
-        int emoloyee_id =  util.checkDepartmentIdInEmployyes(employees);
+        int emoloyee_id =  util.checkHasDepartmentId(employees);
         employeesDAO.updateDepartmentId(employees, emoloyee_id);
         System.out.println("\t Thêm nhân viên vào phòng ban thành công");
     }
 
     private static void deleteEmployeeInDepratment(){
         System.out.print("\t Nhập ID nhân viên cần xóa khỏi phòng ban: ");
+        employeesList = employeesDAO.getAll();
+        employeesList.stream().filter(employees1 -> {
+            return employees1.getDepartment_id() != 0;
+        }).forEach(employees1 -> {
+            System.out.println("ID nhan vien: " + employees1.getEmployee_id() + "Tên: " + employees1.getName() + ", Ma Phong ban: " + employees1.getDepartment_id());
+        });
         int employee_id = util.checkDeleteDepartmentIdEmployees();
         employeesDAO.deleteDepartmentID(employee_id);
         System.out.println("\t Xóa nhân vien khoi phòng ban thành công");
@@ -294,6 +318,12 @@ public class Main {
 
     private static void changeDepartment(){
         Employees employees = new Employees();
+        employeesList = employeesDAO.getAll();
+        employeesList.stream().filter(employees1 -> {
+            return employees1.getDepartment_id() != 0;
+        }).forEach(employees1 -> {
+            System.out.println("ID nhan vien: " + employees1.getEmployee_id() +  ", --Ma Phong ban: " + employees1.getDepartment_id() + ", --Mã chức vụ: " + employees1.getPosition_id() );
+        });
         System.out.print("\t Nhập ID nhân viên cần chuyển phòng ban: ");
         int emplyee_id =  util.checkChangeDepartment(employees);
         employeesDAO.updateDepartmentId(employees, emplyee_id);
@@ -304,7 +334,8 @@ public class Main {
         Departments departments = new Departments();
         System.out.print("\t Nhập tên phòng ban: ");
         String name = in.nextLine();
-        util.whileInputNotNull(name);
+        util.checkInputNotNull(name);
+        util.checkDepartmentName(name);
         departments.setName(name);
         departmentsDAO.insert(departments);
         System.out.println("\t Thêm Thành Công: ");
@@ -315,7 +346,8 @@ public class Main {
         int departmentId = util.checkDepartmentByID();
         System.out.print("\t Nhập tên phòng ban: ");
         String name = in.nextLine();
-        util.whileInputNotNull(name);
+        util.checkInputNotNull(name);
+        util.checkDepartmentName(name);
         departments.setName(name);
         departmentsDAO.update(departments, departmentId);
         System.out.println("\t Cập nhật thành công");
@@ -334,12 +366,22 @@ public class Main {
         util.checkPersonalIncomeTax(employeeId);
 
     }
-    private static void showSalaryMax(){
-
-      Employees employees = employeesDAO.showSalaryMax();
-        System.out.println("ID: " + employees.getEmployee_id() + ", Tên: " + employees.getName() + ", Lương: " + employees.getSalary());
+    private static void sortSalary(){
+        employeesList  = employeesDAO.getAll();
+        employeesList.stream().sorted((o1, o2) -> {
+            if(o1.getSalary() < o2.getSalary()){
+                return 1;
+            }else if(o1.getSalary()  > o2.getSalary()){
+                return -1;
+            }else return 0;
+        }).forEach(employees -> {
+            System.out.println("ID: " + employees.getEmployee_id() +  ", Tên: " + employees.getName()  + ", salary: "  +employees.getSalary());
+        });
+//      Employees employees = employeesDAO.showSalaryMax();
+//        System.out.println("ID: " + employees.getEmployee_id() + ", Tên: " + employees.getName() + ", Lương: " + employees.getSalary());
     }
     public static void main(String[] args) {
        startMain();
     }
+
 }

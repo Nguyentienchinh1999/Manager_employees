@@ -35,6 +35,7 @@ public class EmployeesDAO {
                 employees.setAddress(rs.getString("address"));
                 employees.setSalary(rs.getInt("salary"));
                 employees.setDepartment_id(rs.getInt("department_id"));
+                employees.setPosition_id(rs.getInt("position_id"));
                 employeesList.add(employees);
             }
             rs.close();
@@ -59,6 +60,11 @@ public class EmployeesDAO {
                 employees = new Employees();
                 employees.setEmployee_id(rs.getInt("employee_id"));
                 employees.setName(rs.getString("name"));
+                employees.setDate(rs.getString("date"));
+                employees.setGender(rs.getInt("gender"));
+                employees.setPhone_number(rs.getString("phone_number"));
+                employees.setEmail(rs.getString("email"));
+                employees.setAddress(rs.getString("address"));
                 employees.setSalary(rs.getInt("salary"));
                 employees.setDepartment_id(rs.getInt("department_id"));
                 employees.setPosition_id(rs.getInt("position_id"));
